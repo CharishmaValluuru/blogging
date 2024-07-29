@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Grocery Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .product h2 {
+            margin-top: 0;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .buttons button {
+            margin-right: 5px;
+        }
+        #cart {
+            border-top: 2px solid #000;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        #checkout {
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Online Grocery Store</h1>
+    <div id="products"></div>
+    <div id="cart">
+        <h2>Shopping Cart</h2>
+        <ul id="cart-items"></ul>
+        <button onclick="proceedToCheckout()">Proceed to Checkout</button>
+    </div>
+    <div id="checkout" class="hidden">
+        <h2>Checkout</h2>
+        <form onsubmit="makePurchase(event)">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required><br><br>
+            <label for="address">Address:</label>
+            <input type="text" id="address" required><br><br>
+            <button type="submit">Purchase</button>
+        </form>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: 'Apples', price: 3 },
+            { id: 2, name: 'Bananas', price: 2 },
+            { id: 3, name: 'Carrots', price: 4 },
+            { id: 4, name: 'Tomatoes', price: 5 },
+        ];
+        
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function renderProducts() {
+            const productsContainer = document.getElementById('products');
+            productsContainer.innerHTML = '';
+
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product';
+                
+                const nameElement = document.createElement('h2');
+                nameElement.textContent = product.name;
+
+                const priceElement = document.createElement('p');
+                priceElement.textContent = 'Price: $'+product.price;
+
+                const addButton = document.createElement('button');
+                addButton.textContent = 'Add to Cart';
+                addButton.onclick = () => addToCart(product);
+
+                productElement.appendChild(nameElement);
+                productElement.appendChild(priceElement);
+                productElement.appendChild(addButton);
+
+                productsContainer.appendChild(productElement);
+            });
+        }
+
+        function renderCart() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = '';
+
+            cart.forEach((item, index) => {
+                const cartItemElement = document.createElement('li');
+                cartItemElement.textContent =' {list.name} - $${item.price}';
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remove';
+                removeButton.onclick = () => removeFromCart(index);
+
+                cartItemElement.appendChild(removeButton);
+                cartItemsContainer.appendChild(cartItemElement);
+            });
+        }
+
+        function addToCart(product) {
+            cart.push(product);
+            saveCart();
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+            renderCart();
+        }
+
+        function proceedToCheckout() {
+            document.getElementById('checkout').classList.remove('hidden');
+        }
+
+        function makePurchase(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+
+            alert('Thank you for your purchase, ${name}! Your items will be shipped to ${address}');
+            
+            cart.length = 0;
+            saveCart();
+            renderCart();
+
+            document.getElementById('checkout').classList.add('hidden');
+        }
+
+        renderProducts();
+        renderCart();
+    </script>
+</body>
+</html>
